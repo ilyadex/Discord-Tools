@@ -9,11 +9,7 @@ Functions:
 1 - spam webhook
 2 - deleter webhook
 
-else u using not exe:
-
+write this for install for work program
 pip install keyboard colorama
-
-else u dont use .py:
-just download and start the .exe
 
 USE AT YOUR RISK!
