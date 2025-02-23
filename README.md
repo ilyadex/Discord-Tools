@@ -20,3 +20,4 @@ write this for install for work program
 pip install keyboard colorama
 
 USE AT YOUR RISK!
+U CAN BREAK TOS DISCORD!!!
