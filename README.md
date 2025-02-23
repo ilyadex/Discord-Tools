@@ -11,6 +11,10 @@ Functions:
 
 2 - deleter webhook
 
+3 - nuker
+
+4 - webhook info
+
 write this for install for work program
 
 pip install keyboard colorama
