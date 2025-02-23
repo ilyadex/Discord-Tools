@@ -1,0 +1,2 @@
+https://discord.com/api/webhooks/ur_webhook
+https://discord.com/api/webhooks/ur_webhook2
