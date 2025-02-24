@@ -5,16 +5,25 @@ import os
 from colorama import Fore, Style, init
 import threading
 import concurrent.futures
+import sys
 
 os.system("title Discord Tools")
 
 init(autoreset=True)
 
+def clear_console():
+    os.system('cls' if sys.platform.startswith('win') else 'clear')
+
 def gradient_text(text):
-    colors = [Fore.BLUE, Fore.CYAN]
     result = ""
     for i, char in enumerate(text):
-        result += colors[i % len(colors)] + char
+        ratio = i / (len(text) - 1) if len(text) > 1 else 0
+        r = int(0 + (0 - 0) * ratio)  # Красный остается 0
+        g = int(0 + (255 - 0) * ratio)  # Зеленый плавно увеличивается
+        b = int(255 + (255 - 255) * ratio)  # Синий остается 255
+        
+        result += f"\033[38;2;{r};{g};{b}m{char}"
+    
     return result + Style.RESET_ALL
 
 BANNER = gradient_text("""
@@ -26,7 +35,6 @@ BANNER = gradient_text("""
             #+#    #+#    #+#    #+#    #+#        #+#    #+#    #+# #+#    #+# #+#       #+#    #+#    
             ######### ########### ########   #     ###     ########   ########  ########## ########      
 """)
-print("made by chatGPT and i1yadex")
 
 def send_request(webhook_url, message):
     try:
@@ -238,6 +246,9 @@ def main():
         get_webhook_info()
     else:
         print(f"{Fore.RED}[-]Wrong number, try again!{Style.RESET_ALL}")
+        time.sleep(2)
+        clear_console()
+        main()
 
 if __name__ == "__main__":
     main()
