@@ -6,6 +6,7 @@ from colorama import Fore, Style, init
 import threading
 import concurrent.futures
 import sys
+from itertools import cycle
 
 os.system("title Discord Tools")
 
@@ -18,9 +19,9 @@ def gradient_text(text):
     result = ""
     for i, char in enumerate(text):
         ratio = i / (len(text) - 1) if len(text) > 1 else 0
-        r = int(0 + (0 - 0) * ratio)  # Красный остается 0
-        g = int(0 + (255 - 0) * ratio)  # Зеленый плавно увеличивается
-        b = int(255 + (255 - 255) * ratio)  # Синий остается 255
+        r = int(0 + (0 - 0) * ratio)
+        g = int(0 + (255 - 0) * ratio)
+        b = int(255 + (255 - 255) * ratio)
         
         result += f"\033[38;2;{r};{g};{b}m{char}"
     
@@ -33,8 +34,9 @@ BANNER = gradient_text("""
             +#+    +:+    +#+    +#++:++#++        +#+    +#+    +:+ +#+    +:+ +#+       +#++:++#++  
             +#+    +#+    +#+           +#+        +#+    +#+    +#+ +#+    +#+ +#+              +#+   
             #+#    #+#    #+#    #+#    #+#        #+#    #+#    #+# #+#    #+# #+#       #+#    #+#    
-            ######### ########### ########   #     ###     ########   ########  ########## ########   
-            The github: https://github.com/ilyadex/Discord-Tools/
+            ######### ########### ########   #     ###     ########   ########  ########## ########      
+
+                             The github: https://github.com/ilyadex/Discord-Tools/
 """)
 
 def send_request(webhook_url, message):
@@ -47,50 +49,61 @@ def send_request(webhook_url, message):
     except Exception as e:
         print(f"{Fore.RED}Exception: {e}{Style.RESET_ALL}")
 
-def discord_spammer():
+def send_bytoken(token, channel_id, message):
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0",
+        "Authorization": token
+    }
+    
+    url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+    data = {"content": message}
+    
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        if response.status_code == 200:
+            print(f"{Fore.GREEN}[+] Sent! {token[:10]}...")
+        else:
+            print(f"{Fore.RED}[-] Error ({response.status_code}) with {token[:10]}: {response.text}")
+    except Exception as e:
+        print(f"{Fore.RED}[-] Exception: {e}")
 
-    server_id = input("Server ID: ")
-    channel_id = input("Channel ID: ")
-    message = input("Message: ")
-    delay = float(input("Delay (seconds): "))
+def discord_spammer():
+    guild_id = input("Enter Server ID: ")
+    channel_id = input("Enter Channel ID: ")
+    message = input("Enter message: ")
+    batch_size = int(input("How many accounts send messages at the same time? "))
+    delay = float(input("Delay between batches (seconds): "))
 
     try:
         with open("accounts.txt", "r") as f:
             tokens = [line.strip() for line in f.readlines() if line.strip()]
     except FileNotFoundError:
-        print("{Fore.RED}[-]file accounts.txt not found!")
+        print(f"{Fore.RED}[-] File accounts.txt not found!")
         return
 
     if not tokens:
-        print("{Fore.RED}[-]No any tokens")
+        print(f"{Fore.RED}[-] No tokens found!")
         return
 
-    print(f"Using {len(tokens)} Accounts.")
+    print(f"{Fore.CYAN}[INFO] Using {len(tokens)} accounts.")
+    
+    token_cycle = cycle(tokens)
 
-    headers_template = {
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0"
-    }
+    while True:
+        batch = [next(token_cycle) for _ in range(batch_size)]
+        threads = []
 
-    try:
-        while True:
-            for token in tokens:
-                headers = headers_template.copy()
-                headers["Authorization"] = token
+        for token in batch:
+            thread = threading.Thread(target=send_bytoken, args=(token, channel_id, message))
+            thread.start()
+            threads.append(thread)
 
-                url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
-                data = {"content": message}
+        for thread in threads:
+            thread.join()
 
-                response = requests.post(url, json=data, headers=headers)
-
-                if response.status_code == 200:
-                    print(f"{Fore.GREEN}[+]Send! {token[:10]}...")
-                else:
-                    print(f"{Fore.RED}[-]Error! ({response.status_code}) with send {token[:10]}: {response.text}")
-
-                time.sleep(delay)
-    except KeyboardInterrupt:
-        print("\nSpam Stopped")
+        print(f"{Fore.YELLOW}[*] Waiting {delay} seconds before next batch...")
+        time.sleep(delay)
 
 def spam_webhook():
     print("\nSelect:")
