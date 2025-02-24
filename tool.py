@@ -46,6 +46,51 @@ def send_request(webhook_url, message):
     except Exception as e:
         print(f"{Fore.RED}Exception: {e}{Style.RESET_ALL}")
 
+def discord_spammer():
+
+    server_id = input("Server ID: ")
+    channel_id = input("Channel ID: ")
+    message = input("Message: ")
+    delay = float(input("Delay (seconds): "))
+
+    try:
+        with open("accounts.txt", "r") as f:
+            tokens = [line.strip() for line in f.readlines() if line.strip()]
+    except FileNotFoundError:
+        print("{Fore.RED}[-]file accounts.txt not found!")
+        return
+
+    if not tokens:
+        print("{Fore.RED}[-]No any tokens")
+        return
+
+    print(f"Using {len(tokens)} Accounts.")
+
+    headers_template = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    try:
+        while True:
+            for token in tokens:
+                headers = headers_template.copy()
+                headers["Authorization"] = token
+
+                url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+                data = {"content": message}
+
+                response = requests.post(url, json=data, headers=headers)
+
+                if response.status_code == 200:
+                    print(f"{Fore.GREEN}[+]Send! {token[:10]}...")
+                else:
+                    print(f"{Fore.red}[-]Error! ({response.status_code}) with send {token[:10]}: {response.text}")
+
+                time.sleep(delay)
+    except KeyboardInterrupt:
+        print("\n⛔ Спам остановлен вручную.")
+
 def spam_webhook():
     print("\nSelect:")
     print("[1] - Single Webhook URL")
@@ -232,6 +277,7 @@ def main():
     print("                                       [2] - Delete webhook ")
     print("                                       [3] - Nuker          ")
     print("                                       [4] - Webhook info")
+    print("                                       [5] - Raider")
     print("                                       ")
     
     choice = input("Write number: ").strip()
@@ -244,6 +290,8 @@ def main():
         bot_spammer()
     elif choice == "4":
         get_webhook_info()
+    elif choice == "5":
+        discord_spammer()
     else:
         print(f"{Fore.RED}[-]Wrong number, try again!{Style.RESET_ALL}")
         time.sleep(2)
