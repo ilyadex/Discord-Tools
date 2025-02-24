@@ -89,7 +89,7 @@ def discord_spammer():
 
                 time.sleep(delay)
     except KeyboardInterrupt:
-        print("\n⛔ Спам остановлен вручную.")
+        print("\nSpam Stopped")
 
 def spam_webhook():
     print("\nSelect:")
