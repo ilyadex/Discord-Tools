@@ -85,7 +85,7 @@ def discord_spammer():
                 if response.status_code == 200:
                     print(f"{Fore.GREEN}[+]Send! {token[:10]}...")
                 else:
-                    print(f"{Fore.red}[-]Error! ({response.status_code}) with send {token[:10]}: {response.text}")
+                    print(f"{Fore.RED}[-]Error! ({response.status_code}) with send {token[:10]}: {response.text}")
 
                 time.sleep(delay)
     except KeyboardInterrupt:
